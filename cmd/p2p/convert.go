@@ -28,16 +28,15 @@ func convertPDF(cfg config, stdout, stderr io.Writer) error {
 	}
 
 	outPrefix := filepath.Join(cfg.outDir, cfg.prefix)
-	fmt.Fprintf(stdout, "0%%\n")
+	printProgress(stdout, 0, len(pages))
 	for i, page := range pages {
 		if err := convertPage(cfg, outPrefix, page, stdout, stderr); err != nil {
 			return err
 		}
 
-		percent := int(float64(i+1) / float64(len(pages)) * 100)
-		fmt.Fprintf(stdout, "%d%%\n", percent)
+		printProgress(stdout, i+1, len(pages))
 	}
 
-	fmt.Fprintf(stdout, "Output: %s\nDone\n", cfg.outDir)
+	fmt.Fprintf(stdout, "\nOutput: %s\nDone\n", cfg.outDir)
 	return nil
 }
