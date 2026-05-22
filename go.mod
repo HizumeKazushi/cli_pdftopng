@@ -1,4 +1,4 @@
-module cli_pdftopng
+module github.com/HizumeKazushi/cli_pdftopng
 
 go 1.26
 
