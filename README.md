@@ -22,6 +22,8 @@ sudo apt-get install poppler-utils
 p2p input.pdf
 ```
 
+デフォルトでは`input/`のようにPDF名のフォルダを作り、複数ページのPNGをその中にまとめて出力します。変換中は`0%`から`100%`まで進捗が表示されます。
+
 出力先やDPIを指定する場合:
 
 ```sh
@@ -58,10 +60,10 @@ go install ./cmd/p2p
 
 `$(go env GOPATH)/bin`にPATHが通っていれば、どこからでも`p2p`として実行できます。
 
-GitHubで公開した後は、module pathを公開リポジトリに合わせると次の形式で配布できます。
+GitHubからインストールする場合:
 
 ```sh
-go install github.com/USER/REPO/cmd/p2p@latest
+go install github.com/HizumeKazushi/cli_pdftopng/cmd/p2p@latest
 ```
 
 ## ビルド
