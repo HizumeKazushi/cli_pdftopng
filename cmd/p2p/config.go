@@ -15,6 +15,7 @@ type config struct {
 	dpi    int
 	first  int
 	last   int
+	batch  bool
 }
 
 func validateConfig(cfg *config) error {
@@ -42,6 +43,8 @@ func resolveOutputDefaults(cfg *config) {
 	name := strings.TrimSuffix(base, filepath.Ext(base))
 	if cfg.outDir == "" {
 		cfg.outDir = name
+	} else if cfg.batch {
+		cfg.outDir = filepath.Join(cfg.outDir, name)
 	}
 	if cfg.prefix == "" {
 		cfg.prefix = name

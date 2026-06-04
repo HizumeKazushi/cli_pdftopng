@@ -15,14 +15,13 @@ func run(args []string, stdout, stderr io.Writer) error {
 func newRootCommand(stdout, stderr io.Writer) *cobra.Command {
 	cfg := config{}
 	rootCmd := &cobra.Command{
-		Use:           appName + " [flags] input.pdf",
+		Use:           appName + " [flags] input.pdf [input2.pdf...]",
 		Short:         "Convert PDF pages to PNG files",
-		Args:          cobra.ExactArgs(1),
+		Args:          cobra.MinimumNArgs(1),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg.input = args[0]
-			return convertPDF(cfg, stdout, stderr)
+			return convertPDFs(cfg, args, stdout, stderr)
 		},
 	}
 	rootCmd.SetOut(stdout)
@@ -31,14 +30,13 @@ func newRootCommand(stdout, stderr io.Writer) *cobra.Command {
 
 	convertCfg := config{}
 	convertCmd := &cobra.Command{
-		Use:           "convert [flags] input.pdf",
+		Use:           "convert [flags] input.pdf [input2.pdf...]",
 		Short:         "Convert PDF pages to PNG files",
-		Args:          cobra.ExactArgs(1),
+		Args:          cobra.MinimumNArgs(1),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			convertCfg.input = args[0]
-			return convertPDF(convertCfg, stdout, stderr)
+			return convertPDFs(convertCfg, args, stdout, stderr)
 		},
 	}
 	addConvertFlags(convertCmd, &convertCfg)

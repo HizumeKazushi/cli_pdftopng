@@ -40,3 +40,22 @@ func convertPDF(cfg config, stdout, stderr io.Writer) error {
 	fmt.Fprintf(stdout, "\nOutput: %s\nDone\n", cfg.outDir)
 	return nil
 }
+
+func convertPDFs(cfg config, inputs []string, stdout, stderr io.Writer) error {
+	if len(inputs) == 1 {
+		cfg.input = inputs[0]
+		return convertPDF(cfg, stdout, stderr)
+	}
+
+	for i, input := range inputs {
+		pdfCfg := cfg
+		pdfCfg.input = input
+		pdfCfg.batch = true
+
+		fmt.Fprintf(stdout, "Converting %s (%d/%d)\n", input, i+1, len(inputs))
+		if err := convertPDF(pdfCfg, stdout, stderr); err != nil {
+			return err
+		}
+	}
+	return nil
+}
