@@ -1,4 +1,4 @@
-# p2p
+# pf2pg
 
 PDFをPNGに変換するGo製CLIです。PDFのレンダリングにはPopplerの`pdftoppm`を使います。
 
@@ -19,7 +19,7 @@ sudo apt-get install poppler-utils
 ## 使い方
 
 ```sh
-p2p input.pdf
+pf2pg input.pdf
 ```
 
 デフォルトでは`input/`のようにPDF名のフォルダを作り、複数ページのPNGをその中にまとめて出力します。変換中は次のようなプログレスバーが表示されます。
@@ -31,13 +31,13 @@ p2p input.pdf
 出力先やDPIを指定する場合:
 
 ```sh
-p2p -o out --dpi 200 input.pdf
+pf2pg -o out --dpi 200 input.pdf
 ```
 
 並列数を指定する場合:
 
 ```sh
-p2p --jobs 4 input.pdf
+pf2pg --jobs 4 input.pdf
 ```
 
 デフォルトではCPU数を使ってページ単位で並列変換します。
@@ -45,13 +45,13 @@ p2p --jobs 4 input.pdf
 ページ範囲を指定する場合:
 
 ```sh
-p2p -o out --first 2 --last 5 input.pdf
+pf2pg -o out --first 2 --last 5 input.pdf
 ```
 
 出力ファイル名のprefixを指定する場合:
 
 ```sh
-p2p -o out --prefix page input.pdf
+pf2pg -o out --prefix page input.pdf
 ```
 
 `pdftoppm`の仕様に合わせて、`out/page-1.png`のようなファイルが生成されます。
@@ -59,7 +59,7 @@ p2p -o out --prefix page input.pdf
 複数PDFを一括変換する場合:
 
 ```sh
-p2p *.pdf
+pf2pg *.pdf
 ```
 
 `-o out`を併用した場合は、`out/input/input-1.png`のようにPDFごとのサブディレクトリへ出力します。
@@ -67,13 +67,13 @@ p2p *.pdf
 途中で失敗したPDFがあっても残りを変換する場合:
 
 ```sh
-p2p --continue-on-error *.pdf
+pf2pg --continue-on-error *.pdf
 ```
 
 サブコマンド形式でも実行できます。
 
 ```sh
-p2p convert -o out input.pdf
+pf2pg convert -o out input.pdf
 ```
 
 ## インストール
@@ -81,21 +81,21 @@ p2p convert -o out input.pdf
 ローカルでインストールする場合:
 
 ```sh
-go install ./cmd/p2p
+go install ./cmd/pf2pg
 ```
 
-`$(go env GOPATH)/bin`にPATHが通っていれば、どこからでも`p2p`として実行できます。
+`$(go env GOPATH)/bin`にPATHが通っていれば、どこからでも`pf2pg`として実行できます。
 
 GitHubからインストールする場合:
 
 ```sh
-go install github.com/HizumeKazushi/cli_pdftopng/cmd/p2p@latest
+go install github.com/HizumeKazushi/pf2pg/cmd/pf2pg@latest
 ```
 
 ## ビルド
 
 ```sh
-go build -o p2p ./cmd/p2p
+go build -o pf2pg ./cmd/pf2pg
 ```
 
 複数OS向けのバイナリを作る場合:

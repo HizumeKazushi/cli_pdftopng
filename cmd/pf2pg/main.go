@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const appName = "p2p"
+const appName = "pf2pg"
 
 func main() {
 	if err := run(os.Args[1:], os.Stdout, os.Stderr); err != nil {

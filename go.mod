@@ -1,4 +1,4 @@
-module github.com/HizumeKazushi/cli_pdftopng
+module github.com/HizumeKazushi/pf2pg
 
 go 1.26
 
