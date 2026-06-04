@@ -64,6 +64,12 @@ p2p *.pdf
 
 `-o out`を併用した場合は、`out/input/input-1.png`のようにPDFごとのサブディレクトリへ出力します。
 
+途中で失敗したPDFがあっても残りを変換する場合:
+
+```sh
+p2p --continue-on-error *.pdf
+```
+
 サブコマンド形式でも実行できます。
 
 ```sh
