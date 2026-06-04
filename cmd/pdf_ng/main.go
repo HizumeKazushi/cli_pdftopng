@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const appName = "pf2pg"
+const appName = "pdf_ng"
 
 func main() {
 	if err := run(os.Args[1:], os.Stdout, os.Stderr); err != nil {

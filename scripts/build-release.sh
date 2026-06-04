@@ -11,9 +11,9 @@ build() {
     ext=".exe"
   fi
 
-  out="dist/pf2pg_${os}_${arch}${ext}"
+  out="dist/pdf_ng_${os}_${arch}${ext}"
   echo "building ${out}"
-  GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$out" ./cmd/pf2pg
+  GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$out" ./cmd/pdf_ng
 }
 
 build darwin arm64
@@ -24,5 +24,5 @@ build windows amd64
 
 (
   cd dist
-  shasum -a 256 pf2pg_* > checksums.txt
+  shasum -a 256 pdf_ng_* > checksums.txt
 )

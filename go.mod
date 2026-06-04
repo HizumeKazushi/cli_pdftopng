@@ -1,4 +1,4 @@
-module github.com/HizumeKazushi/pf2pg
+module github.com/HizumeKazushi/pdf_ng
 
 go 1.26
 

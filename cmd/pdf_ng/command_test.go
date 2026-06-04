@@ -19,7 +19,7 @@ func TestRootCommandHelpIncludesConvertSubcommand(t *testing.T) {
 	if !bytes.Contains(stdout.Bytes(), []byte("convert")) {
 		t.Fatalf("help output = %q, want convert subcommand", stdout.String())
 	}
-	if !bytes.Contains(stdout.Bytes(), []byte("pf2pg [flags] input.pdf [input2.pdf...]")) {
-		t.Fatalf("help output = %q, want pf2pg usage", stdout.String())
+	if !bytes.Contains(stdout.Bytes(), []byte("pdf_ng [flags] input.pdf [input2.pdf...]")) {
+		t.Fatalf("help output = %q, want pdf_ng usage", stdout.String())
 	}
 }
