@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
 func convertPDF(cfg config, stdout, stderr io.Writer) error {
@@ -29,12 +30,8 @@ func convertPDF(cfg config, stdout, stderr io.Writer) error {
 
 	outPrefix := filepath.Join(cfg.outDir, cfg.prefix)
 	printProgress(stdout, 0, len(pages))
-	for i, page := range pages {
-		if err := convertPage(cfg, outPrefix, page, stdout, stderr); err != nil {
-			return err
-		}
-
-		printProgress(stdout, i+1, len(pages))
+	if err := convertPages(cfg, outPrefix, pages, stdout, stderr); err != nil {
+		return err
 	}
 
 	fmt.Fprintf(stdout, "\nOutput: %s\nDone\n", cfg.outDir)
@@ -58,4 +55,54 @@ func convertPDFs(cfg config, inputs []string, stdout, stderr io.Writer) error {
 		}
 	}
 	return nil
+}
+
+func convertPages(cfg config, outPrefix string, pages []int, stdout, stderr io.Writer) error {
+	jobs := workerCount(cfg.jobs, len(pages))
+	pageJobs := make(chan int)
+	results := make(chan error, len(pages))
+
+	var wg sync.WaitGroup
+	for range jobs {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for page := range pageJobs {
+				results <- convertPage(cfg, outPrefix, page, io.Discard, stderr)
+			}
+		}()
+	}
+
+	go func() {
+		for _, page := range pages {
+			pageJobs <- page
+		}
+		close(pageJobs)
+		wg.Wait()
+		close(results)
+	}()
+
+	done := 0
+	var firstErr error
+	for err := range results {
+		done++
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
+		printProgress(stdout, done, len(pages))
+	}
+	return firstErr
+}
+
+func workerCount(jobs, pages int) int {
+	if pages <= 0 {
+		return 0
+	}
+	if jobs <= 0 {
+		return 1
+	}
+	if jobs > pages {
+		return pages
+	}
+	return jobs
 }

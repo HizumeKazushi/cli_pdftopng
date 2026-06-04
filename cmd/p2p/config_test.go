@@ -4,7 +4,7 @@ import "testing"
 
 func TestValidateConfigDefaults(t *testing.T) {
 	pdf := writeTempPDF(t)
-	cfg := config{input: pdf, dpi: 200}
+	cfg := config{input: pdf, dpi: 200, jobs: 1}
 
 	if err := validateConfig(&cfg); err != nil {
 		t.Fatalf("validateConfig returned error: %v", err)
@@ -26,7 +26,16 @@ func TestValidateConfigDefaults(t *testing.T) {
 
 func TestValidateConfigRejectsInvalidRange(t *testing.T) {
 	pdf := writeTempPDF(t)
-	cfg := config{input: pdf, dpi: 200, first: 3, last: 2}
+	cfg := config{input: pdf, dpi: 200, jobs: 1, first: 3, last: 2}
+
+	if err := validateConfig(&cfg); err == nil {
+		t.Fatal("validateConfig returned nil error")
+	}
+}
+
+func TestValidateConfigRejectsInvalidJobs(t *testing.T) {
+	pdf := writeTempPDF(t)
+	cfg := config{input: pdf, dpi: 200, jobs: 0}
 
 	if err := validateConfig(&cfg); err == nil {
 		t.Fatal("validateConfig returned nil error")
@@ -35,7 +44,7 @@ func TestValidateConfigRejectsInvalidRange(t *testing.T) {
 
 func TestValidateConfigUsesInputSubdirectoryForBatchOutput(t *testing.T) {
 	pdf := writeTempPDF(t)
-	cfg := config{input: pdf, outDir: "out", dpi: 200, batch: true}
+	cfg := config{input: pdf, outDir: "out", dpi: 200, jobs: 1, batch: true}
 
 	if err := validateConfig(&cfg); err != nil {
 		t.Fatalf("validateConfig returned error: %v", err)

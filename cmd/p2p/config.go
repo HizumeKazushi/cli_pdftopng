@@ -15,6 +15,7 @@ type config struct {
 	dpi    int
 	first  int
 	last   int
+	jobs   int
 	batch  bool
 }
 
@@ -27,6 +28,9 @@ func validateConfig(cfg *config) error {
 	}
 	if cfg.dpi <= 0 {
 		return errors.New("--dpiは1以上を指定してください")
+	}
+	if cfg.jobs <= 0 {
+		return errors.New("--jobsは1以上を指定してください")
 	}
 	if cfg.first < 0 || cfg.last < 0 {
 		return errors.New("--firstと--lastは0以上を指定してください")

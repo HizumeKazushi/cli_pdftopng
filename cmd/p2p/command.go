@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"runtime"
 
 	"github.com/spf13/cobra"
 )
@@ -51,4 +52,5 @@ func addConvertFlags(cmd *cobra.Command, cfg *config) {
 	cmd.Flags().IntVar(&cfg.dpi, "dpi", 200, "rendering DPI")
 	cmd.Flags().IntVar(&cfg.first, "first", 0, "first page to convert, 1-based")
 	cmd.Flags().IntVar(&cfg.last, "last", 0, "last page to convert, 1-based")
+	cmd.Flags().IntVarP(&cfg.jobs, "jobs", "j", runtime.NumCPU(), "number of pages to convert in parallel")
 }
