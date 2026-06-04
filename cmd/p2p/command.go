@@ -53,4 +53,5 @@ func addConvertFlags(cmd *cobra.Command, cfg *config) {
 	cmd.Flags().IntVar(&cfg.first, "first", 0, "first page to convert, 1-based")
 	cmd.Flags().IntVar(&cfg.last, "last", 0, "last page to convert, 1-based")
 	cmd.Flags().IntVarP(&cfg.jobs, "jobs", "j", runtime.NumCPU(), "number of pages to convert in parallel")
+	cmd.Flags().BoolVar(&cfg.continueOnError, "continue-on-error", false, "continue converting remaining PDFs after a batch error")
 }

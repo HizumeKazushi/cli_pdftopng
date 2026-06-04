@@ -80,3 +80,53 @@ func TestConvertPagesJoinsConcurrentErrors(t *testing.T) {
 		t.Fatalf("error = %q, want both page errors", message)
 	}
 }
+
+func TestConvertPDFsStopsAfterBatchErrorByDefault(t *testing.T) {
+	var converted []string
+	convert := func(cfg config, stdout, stderr io.Writer) error {
+		converted = append(converted, cfg.input)
+		if cfg.input == "bad.pdf" {
+			return errors.New("broken pdf")
+		}
+		return nil
+	}
+
+	err := convertPDFsWithConverter(config{}, []string{"ok.pdf", "bad.pdf", "later.pdf"}, &bytes.Buffer{}, io.Discard, convert)
+	if err == nil {
+		t.Fatal("convertPDFsWithConverter returned nil error")
+	}
+
+	want := []string{"ok.pdf", "bad.pdf"}
+	if !reflect.DeepEqual(converted, want) {
+		t.Fatalf("converted PDFs = %#v, want %#v", converted, want)
+	}
+}
+
+func TestConvertPDFsContinuesAfterBatchErrorWhenEnabled(t *testing.T) {
+	var converted []string
+	var stderr bytes.Buffer
+	convert := func(cfg config, stdout, stderr io.Writer) error {
+		converted = append(converted, cfg.input)
+		if strings.HasPrefix(cfg.input, "bad") {
+			return errors.New("broken pdf")
+		}
+		return nil
+	}
+
+	err := convertPDFsWithConverter(config{continueOnError: true}, []string{"bad-1.pdf", "ok.pdf", "bad-2.pdf"}, &bytes.Buffer{}, &stderr, convert)
+	if err == nil {
+		t.Fatal("convertPDFsWithConverter returned nil error")
+	}
+
+	want := []string{"bad-1.pdf", "ok.pdf", "bad-2.pdf"}
+	if !reflect.DeepEqual(converted, want) {
+		t.Fatalf("converted PDFs = %#v, want %#v", converted, want)
+	}
+	message := err.Error()
+	if !strings.Contains(message, "bad-1.pdf") || !strings.Contains(message, "bad-2.pdf") {
+		t.Fatalf("error = %q, want both PDF errors", message)
+	}
+	if !strings.Contains(stderr.String(), "bad-1.pdf") || !strings.Contains(stderr.String(), "bad-2.pdf") {
+		t.Fatalf("stderr = %q, want both PDF errors", stderr.String())
+	}
+}

@@ -17,6 +17,8 @@ type config struct {
 	last   int
 	jobs   int
 	batch  bool
+
+	continueOnError bool
 }
 
 func validateConfig(cfg *config) error {

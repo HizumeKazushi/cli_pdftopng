@@ -11,6 +11,7 @@ import (
 )
 
 type pageConverter func(context.Context, config, string, int, io.Writer, io.Writer) error
+type pdfConverter func(config, io.Writer, io.Writer) error
 type pageResult struct {
 	page int
 	err  error
@@ -47,22 +48,32 @@ func convertPDF(cfg config, stdout, stderr io.Writer) error {
 }
 
 func convertPDFs(cfg config, inputs []string, stdout, stderr io.Writer) error {
+	return convertPDFsWithConverter(cfg, inputs, stdout, stderr, convertPDF)
+}
+
+func convertPDFsWithConverter(cfg config, inputs []string, stdout, stderr io.Writer, convert pdfConverter) error {
 	if len(inputs) == 1 {
 		cfg.input = inputs[0]
-		return convertPDF(cfg, stdout, stderr)
+		return convert(cfg, stdout, stderr)
 	}
 
+	var errs []error
 	for i, input := range inputs {
 		pdfCfg := cfg
 		pdfCfg.input = input
 		pdfCfg.batch = true
 
 		fmt.Fprintf(stdout, "Converting %s (%d/%d)\n", input, i+1, len(inputs))
-		if err := convertPDF(pdfCfg, stdout, stderr); err != nil {
-			return err
+		if err := convert(pdfCfg, stdout, stderr); err != nil {
+			err = fmt.Errorf("%s: %w", input, err)
+			if !cfg.continueOnError {
+				return err
+			}
+			fmt.Fprintf(stderr, "%v\n", err)
+			errs = append(errs, err)
 		}
 	}
-	return nil
+	return errors.Join(errs...)
 }
 
 func convertPages(cfg config, outPrefix string, pages []int, stdout, stderr io.Writer) error {
