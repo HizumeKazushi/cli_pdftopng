@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -48,9 +49,9 @@ func parsePageCount(output string) (int, error) {
 	return 0, errors.New("PDFのページ数を取得できません")
 }
 
-func convertPage(cfg config, outPrefix string, page int, stdout, stderr io.Writer) error {
+func convertPage(ctx context.Context, cfg config, outPrefix string, page int, stdout, stderr io.Writer) error {
 	cmdArgs := buildPdftoppmArgs(cfg, outPrefix, page)
-	cmd := exec.Command("pdftoppm", cmdArgs...)
+	cmd := exec.CommandContext(ctx, "pdftoppm", cmdArgs...)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 

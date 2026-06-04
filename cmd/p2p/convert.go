@@ -1,12 +1,20 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"sync"
 )
+
+type pageConverter func(context.Context, config, string, int, io.Writer, io.Writer) error
+type pageResult struct {
+	page int
+	err  error
+}
 
 func convertPDF(cfg config, stdout, stderr io.Writer) error {
 	if err := validateConfig(&cfg); err != nil {
@@ -58,40 +66,66 @@ func convertPDFs(cfg config, inputs []string, stdout, stderr io.Writer) error {
 }
 
 func convertPages(cfg config, outPrefix string, pages []int, stdout, stderr io.Writer) error {
+	return convertPagesWithConverter(context.Background(), cfg, outPrefix, pages, stdout, stderr, convertPage)
+}
+
+func convertPagesWithConverter(parent context.Context, cfg config, outPrefix string, pages []int, stdout, stderr io.Writer, convert pageConverter) error {
 	jobs := workerCount(cfg.jobs, len(pages))
+	ctx, cancel := context.WithCancel(parent)
+	defer cancel()
+
 	pageJobs := make(chan int)
-	results := make(chan error, len(pages))
+	results := make(chan pageResult, len(pages))
 
 	var wg sync.WaitGroup
 	for range jobs {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for page := range pageJobs {
-				results <- convertPage(cfg, outPrefix, page, io.Discard, stderr)
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case page, ok := <-pageJobs:
+					if !ok {
+						return
+					}
+					err := convert(ctx, cfg, outPrefix, page, io.Discard, stderr)
+					if err != nil {
+						cancel()
+					}
+					results <- pageResult{page: page, err: err}
+				}
 			}
 		}()
 	}
 
 	go func() {
+		defer close(pageJobs)
 		for _, page := range pages {
-			pageJobs <- page
+			select {
+			case <-ctx.Done():
+				return
+			case pageJobs <- page:
+			}
 		}
-		close(pageJobs)
+	}()
+
+	go func() {
 		wg.Wait()
 		close(results)
 	}()
 
 	done := 0
-	var firstErr error
-	for err := range results {
+	var errs []error
+	for result := range results {
 		done++
-		if err != nil && firstErr == nil {
-			firstErr = err
+		if result.err != nil {
+			errs = append(errs, result.err)
 		}
 		printProgress(stdout, done, len(pages))
 	}
-	return firstErr
+	return errors.Join(errs...)
 }
 
 func workerCount(jobs, pages int) int {
