@@ -34,6 +34,14 @@ p2p input.pdf
 p2p -o out --dpi 200 input.pdf
 ```
 
+並列数を指定する場合:
+
+```sh
+p2p --jobs 4 input.pdf
+```
+
+デフォルトではCPU数を使ってページ単位で並列変換します。
+
 ページ範囲を指定する場合:
 
 ```sh
@@ -47,6 +55,14 @@ p2p -o out --prefix page input.pdf
 ```
 
 `pdftoppm`の仕様に合わせて、`out/page-1.png`のようなファイルが生成されます。
+
+複数PDFを一括変換する場合:
+
+```sh
+p2p *.pdf
+```
+
+`-o out`を併用した場合は、`out/input/input-1.png`のようにPDFごとのサブディレクトリへ出力します。
 
 サブコマンド形式でも実行できます。
 
