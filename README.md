@@ -89,7 +89,7 @@ go install ./cmd/pdf_ng
 GitHubからインストールする場合:
 
 ```sh
-go install github.com/HizumeKazushi/pdf_ng/cmd/pdf_ng@latest
+go install github.com/HizKz/pdf_ng/cmd/pdf_ng@latest
 ```
 
 ## ビルド
